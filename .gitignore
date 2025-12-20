@@ -11,7 +11,7 @@ logs
 *.log
 
 # Python cache
-__pycache__/*
+__pycache__
 
 # Segmentation models
 dataset
