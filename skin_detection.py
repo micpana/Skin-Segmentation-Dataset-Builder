@@ -74,6 +74,8 @@ def extract_skin(image_path):
     USE_FACE_DETECTION = True
     FACE_REQUIRED = False
     KEEP_ONLY_LARGEST_SKIN_COMPONENT = True
+    MAX_SKIN_CONFIDENCE_FILTERING = False
+    MAX_SKIN_CONFIDENCE_RATIO = 0.90
     # --------------------------------------------
 
     # Read image
@@ -115,6 +117,11 @@ def extract_skin(image_path):
     skin_pixel_ratio = np.sum(mask > 0) / mask.size
     if skin_pixel_ratio < 0.05:
         return None, None
+    # Reject images with too many skin pixels
+    if MAX_SKIN_CONFIDENCE_FILTERING:
+        if skin_pixel_ratio > MAX_SKIN_CONFIDENCE_RATIO:
+            # Probably overexposed / false positive
+            return None, None
 
     skin_only = cv2.bitwise_and(region, region, mask=mask)
 
