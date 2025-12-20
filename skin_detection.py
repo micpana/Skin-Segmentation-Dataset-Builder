@@ -13,7 +13,11 @@ mp_face = mp.solutions.face_detection
 def detect_face(image):
     """
     Detects the primary face in an image.
+    Returns a valid face crop or None.
     """
+
+    h, w, _ = image.shape
+
     with mp_face.FaceDetection(
         model_selection=1,
         min_detection_confidence=0.5
@@ -24,14 +28,32 @@ def detect_face(image):
             return None
 
         bbox = results.detections[0].location_data.relative_bounding_box
-        h, w, _ = image.shape
 
         x1 = int(bbox.xmin * w)
         y1 = int(bbox.ymin * h)
-        x2 = x1 + int(bbox.width * w)
-        y2 = y1 + int(bbox.height * h)
+        x2 = int((bbox.xmin + bbox.width) * w)
+        y2 = int((bbox.ymin + bbox.height) * h)
 
-        return image[y1:y2, x1:x2]
+        # -------------------------
+        # CLAMP TO IMAGE BOUNDS
+        # -------------------------
+        x1 = max(0, x1)
+        y1 = max(0, y1)
+        x2 = min(w, x2)
+        y2 = min(h, y2)
+
+        # -------------------------
+        # VALIDATE CROP
+        # -------------------------
+        if x2 <= x1 or y2 <= y1:
+            return None
+
+        face = image[y1:y2, x1:x2]
+
+        if face.size == 0:
+            return None
+
+        return face
 
 
 def skin_color_mask(face_img):
