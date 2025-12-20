@@ -48,6 +48,8 @@ def process_split(split: str, class_names: list):
         
         # sanity check: ensure mask class IDs are within valid range
         assert mask.max() <= len(class_names), f"Mask ID exceeds number of classes: {mask.max()}"
+        # sanity check: ensure mask has no negative values
+        assert mask.min() >= 0, f"Mask has negative values: {mask.min()}"
 
         filename = os.path.basename(img_path)
 
