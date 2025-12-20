@@ -151,6 +151,59 @@ dataset/
 
 * `masks_preview` contains **colorized masks for visualization** only; **integer masks** in `masks` are used for training.
 
+## 🖼 Example Output (Single Sample)
+
+Below is a visual example showing how a single image is transformed by the pipeline.
+
+<table>
+   <tr>
+      <td align="center"><b>Original Image</b></td>
+      <td align="center"><b>Skin-only Image</b></td>
+      <td align="center"><b>Training Mask</b></td>
+      <td align="center"><b>Preview Mask</b></td>
+   </tr>
+   <tr>
+      <td>
+         <img src="demo_images/original_image.jpg" width="250"/>
+      </td>
+      <td>
+         <img src="demo_images/skin_image.jpg" width="250"/>
+      </td>
+      <td>
+         <img src="demo_images/training_mask.jpg" width="250"/>
+      </td>
+      <td>
+         <img src="demo_images/preview_mask.jpg" width="250"/>
+      </td>
+   </tr>
+</table>
+
+### Why the Training Mask Looks Almost Black
+
+The **training mask** is stored as a single-channel image where each pixel value represents a **class ID**, not a color.
+
+For example:
+- `0` → background (ignored during training)
+- `1` → dry skin
+- `2` → normal skin
+- `3` → oily skin
+- ...
+
+Since these values are small integers, they appear **very dark or almost invisible** when viewed as a normal image.
+
+This is intentional.
+
+Segmentation models require **integer-valued masks**, not RGB images.  
+The colorized **preview mask** is generated purely for **human inspection** and is **never used during training**.
+
+### Preview Mask Legend
+
+The preview mask uses a fixed color mapping to visualize different skin classes:
+
+- Each color represents a unique skin type or condition
+- Colors are assigned automatically and consistently
+- Preview masks exist only for debugging and quality checks
+
 ---
 
 ## 🔧 Installation
