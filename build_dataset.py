@@ -16,7 +16,8 @@ from io_utils import (
     prepare_output_dirs,
     save_image,
     save_mask,
-    save_classes_txt
+    save_classes_txt,
+    save_mask_preview
 )
 from skin_detection import extract_skin
 from overlay_utils import overlay_mask_on_image
@@ -53,19 +54,22 @@ def process_split(split: str, class_names: list):
 
         filename = os.path.basename(img_path)
 
+        # Save skin image
         save_image(
             skin_image,
             DATASET_OUTPUT,
             split,
             filename
         )
-
+        # Save class-labeled mask
         save_mask(
             mask,
             DATASET_OUTPUT,
             split,
             filename
         )
+        # Save colorized preview of mask for human inspection
+        save_mask_preview(mask, DATASET_OUTPUT, split, filename, class_names)
 
 
 def main():
