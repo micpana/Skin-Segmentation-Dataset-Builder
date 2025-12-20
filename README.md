@@ -151,6 +151,7 @@ pip install -r requirements.txt
 ```bash
 python build_dataset.py
 ```
+Use CrossEntropyLoss(ignore_index=0) (PyTorch) or equivalent in other frameworks.
 
 ---
 
