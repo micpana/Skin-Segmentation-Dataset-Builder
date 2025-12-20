@@ -70,6 +70,8 @@ def extract_skin(image_path):
     - Partial skin images
     - Skin-only datasets
     """
+    USE_FACE_DETECTION = True
+    FACE_REQUIRED = False
 
     image = cv2.imread(image_path)
     if image is None:
@@ -78,9 +80,11 @@ def extract_skin(image_path):
     # Try face detection first
     face = detect_face(image)
 
-    if face is not None:
+    if (face is not None) and USE_FACE_DETECTION:
         region = face
     else:
+        if FACE_REQUIRED:
+            return None, None
         # Fallback to full image
         region = image
 
