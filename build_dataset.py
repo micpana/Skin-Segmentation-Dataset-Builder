@@ -20,6 +20,7 @@ from io_utils import (
 )
 from skin_detection import extract_skin
 from overlay_utils import overlay_mask_on_image
+import numpy as np
 
 
 DATASET_ORIGINAL = "dataset_original"
@@ -44,6 +45,9 @@ def process_split(split: str, class_names: list):
         # -----------------------------
         mask = np.zeros_like(binary_mask, dtype=np.uint8)
         mask[binary_mask > 0] = class_to_id[class_name]
+        
+        # sanity check: ensure mask class IDs are within valid range
+        assert mask.max() <= len(class_names), f"Mask ID exceeds number of classes: {mask.max()}"
 
         filename = os.path.basename(img_path)
 
