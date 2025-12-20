@@ -115,12 +115,12 @@ def extract_skin(image_path):
             return None, None
         # Fallback to full image
         region = image
-
-    mask = skin_color_mask(region)
     
     # Reject if no skin detected
     if region is None or region.size == 0:
         return None, None
+
+    mask = skin_color_mask(region)
 
     # -------------------------------
     # KEEP ONLY LARGEST SKIN COMPONENT
