@@ -23,34 +23,38 @@ dataset_original/
 These datasets are excellent for classification, but **not usable for segmentation tasks** without manual annotation.
 
 Segmentation models require:
-- Pixel-level masks
-- A different dataset structure
-- Careful handling of background pixels
+
+* Pixel-level masks
+* A different dataset structure
+* Careful handling of background pixels
 
 ### The Core Challenge
 
 In skin segmentation:
-- Background pixels dominate images
-- Background becomes an overpowering class
-- This introduces noise, imbalance, and poor generalization
-- Even cropped face images still contain:
-  - Hair
-  - Eyes
-  - Nostrils
-  - Clothing
-  - Background artifacts
+
+* Background pixels dominate images
+* Background becomes an overpowering class
+* This introduces noise, imbalance, and poor generalization
+* Even cropped face images still contain:
+
+  * Hair
+  * Eyes
+  * Nostrils
+  * Clothing
+  * Background artifacts
 
 ### This Tool Solves That By:
 
-✅ Automatically detecting **skin regions only**  
-✅ Producing **standalone skin images**  
-✅ Producing **standalone skin masks**  
-✅ **Removing background entirely** (no background class)  
-✅ Preserving **train / valid / test splits**  
+✅ Automatically detecting **skin regions only**
+✅ Producing **standalone skin images**
+✅ Producing **standalone skin masks**
+✅ **Removing background entirely** (no background class)
+✅ Preserving **train / valid / test splits**
 ✅ Working with:
-- Face images (selfies)
-- Partial skin images (arms, cheeks, neck, forehead)
-- Skin-only datasets
+
+* Face images (selfies)
+* Partial skin images (arms, cheeks, neck, forehead)
+* Skin-only datasets
 
 ---
 
@@ -61,10 +65,11 @@ Instead of labeling background pixels as a class, this tool:
 > **Removes all non-skin pixels altogether**
 
 This results in:
-- Cleaner segmentation datasets
-- No background domination
-- Better class balance
-- Faster convergence during training
+
+* Cleaner segmentation datasets
+* No background domination
+* Better class balance
+* Faster convergence during training
 
 ---
 
@@ -72,16 +77,20 @@ This results in:
 
 For each image:
 
-1. Attempt **face detection**
+1. Attempt **face detection** (optional)
 2. If a face is detected:
-   - Prefer face crop (less noise)
+
+   * Prefer face crop (less noise)
 3. If no face is detected:
-   - Process the full image
+
+   * Process the full image
 4. Detect **skin pixels only**
 5. Generate:
-   - Skin-only image
-   - Binary skin mask
+
+   * Skin-only image
+   * Binary skin mask
 6. Save outputs in segmentation dataset format
+7. Generate **colorized mask previews** for human inspection (optional)
 
 Face detection is **optional and non-blocking**.
 
@@ -89,11 +98,11 @@ Face detection is **optional and non-blocking**.
 
 ## 🛠 Tools & Technologies Used
 
-- **Python**
-- **OpenCV** – image processing
-- **MediaPipe** – optional face detection
-- **HSV + YCrCb color space filtering** – skin detection
-- **Morphological operations** – mask cleanup
+* **Python**
+* **OpenCV** – image processing
+* **MediaPipe** – optional face detection
+* **HSV + YCrCb color space filtering** – skin detection
+* **Morphological operations** – mask cleanup
 
 No pretrained segmentation model is required.
 
@@ -133,8 +142,14 @@ dataset/
 │   ├── train/
 │   ├── valid/
 │   └── test/
+├── masks_preview/      # colorized human-readable masks
+│   ├── train/
+│   ├── valid/
+│   └── test/
 └── classes.txt
 ```
+
+* `masks_preview` contains **colorized masks for visualization** only; **integer masks** in `masks` are used for training.
 
 ---
 
@@ -151,7 +166,13 @@ pip install -r requirements.txt
 ```bash
 python build_dataset.py
 ```
-Use CrossEntropyLoss(ignore_index=0) (PyTorch) or equivalent in other frameworks.
+
+* The tool will automatically process `train`, `valid`, and `test` splits
+* Colorized mask previews will be generated in `dataset/masks_preview`
+* Use **CrossEntropyLoss(ignore_index=0)** in PyTorch or equivalent in other frameworks
+
+  * Ensures background pixels are ignored during training
+  * Only actual skin pixels contribute to learning
 
 ---
 
@@ -163,5 +184,5 @@ MIT License
 
 ## 📬 Contact & Support
 
-**Michael Panashe Mudimbu**  
-📧 Email: **michaelmudimbu@gmail.com**
+**Michael Panashe Mudimbu**
+📧 Email: **[michaelmudimbu@gmail.com](mailto:michaelmudimbu@gmail.com)**
