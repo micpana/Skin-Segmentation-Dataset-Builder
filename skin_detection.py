@@ -70,9 +70,13 @@ def extract_skin(image_path):
     - Partial skin images
     - Skin-only datasets
     """
+    # Configuration ------------------------------
     USE_FACE_DETECTION = True
     FACE_REQUIRED = False
+    KEEP_ONLY_LARGEST_SKIN_COMPONENT = True
+    # --------------------------------------------
 
+    # Read image
     image = cv2.imread(image_path)
     if image is None:
         return None, None
@@ -89,6 +93,23 @@ def extract_skin(image_path):
         region = image
 
     mask = skin_color_mask(region)
+
+    # -------------------------------
+    # KEEP ONLY LARGEST SKIN COMPONENT
+    # -------------------------------
+    if KEEP_ONLY_LARGEST_SKIN_COMPONENT:
+        num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(
+            mask, connectivity=8
+        )
+
+        # If only background detected
+        if num_labels <= 1:
+            return None, None
+
+        # Ignore background label 0
+        largest_label = 1 + stats[1:, cv2.CC_STAT_AREA].argmax()
+        mask = np.uint8(labels == largest_label) * 255
+    # -------------------------------
 
     # Reject images with insufficient skin pixels
     skin_pixel_ratio = np.sum(mask > 0) / mask.size
