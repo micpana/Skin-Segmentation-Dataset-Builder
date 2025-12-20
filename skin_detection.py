@@ -65,24 +65,32 @@ def skin_color_mask(face_img):
 def extract_skin(image_path):
     """
     Extracts skin-only image and mask.
-    Returns:
-        skin_image (BGR)
-        skin_mask (binary 0/255)
+    Works for:
+    - Face images (selfies)
+    - Partial skin images
+    - Skin-only datasets
     """
-    image = cv2.imread(image_path)
 
+    image = cv2.imread(image_path)
     if image is None:
         return None, None
 
+    # Try face detection first
     face = detect_face(image)
-    if face is None:
+
+    if face is not None:
+        region = face
+    else:
+        # Fallback to full image
+        region = image
+
+    mask = skin_color_mask(region)
+
+    # Reject images with insufficient skin pixels
+    skin_pixel_ratio = np.sum(mask > 0) / mask.size
+    if skin_pixel_ratio < 0.05:
         return None, None
 
-    mask = skin_color_mask(face)
+    skin_only = cv2.bitwise_and(region, region, mask=mask)
 
-    if np.sum(mask) < 500:
-        return None, None
-
-    skin = cv2.bitwise_and(face, face, mask=mask)
-
-    return skin, mask
+    return skin_only, mask

@@ -1,57 +1,40 @@
 """
-I/O utilities for dataset building.
+Utilities for overlaying masks during inference.
 """
 
-import os
 import cv2
+import numpy as np
 
 
-def get_class_names(dataset_original):
-    train_dir = os.path.join(dataset_original, "train")
-    return sorted([
-        d for d in os.listdir(train_dir)
-        if os.path.isdir(os.path.join(train_dir, d))
-    ])
+def overlay_mask_on_image(
+    original_image,
+    mask,
+    color=(0, 255, 0),
+    alpha=0.4
+):
+    """
+    Overlays a segmentation mask on the original image.
 
+    Args:
+        original_image (BGR)
+        mask (binary 0/255)
+        color (BGR)
+        alpha (float)
 
-def get_image_paths(dataset_original, split, class_names):
-    paths = []
+    Returns:
+        overlayed_image
+    """
+    overlay = original_image.copy()
+    color_mask = np.zeros_like(original_image)
+    color_mask[mask > 0] = color
 
-    for cls in class_names:
-        cls_dir = os.path.join(dataset_original, split, cls)
-        if not os.path.exists(cls_dir):
-            continue
+    cv2.addWeighted(
+        color_mask,
+        alpha,
+        overlay,
+        1 - alpha,
+        0,
+        overlay
+    )
 
-        for file in os.listdir(cls_dir):
-            if file.lower().endswith((".jpg", ".png", ".jpeg")):
-                paths.append((
-                    os.path.join(cls_dir, file),
-                    cls
-                ))
-
-    return paths
-
-
-def prepare_output_dirs(dataset_output):
-    for sub in ["images", "masks"]:
-        for split in ["train", "valid", "test"]:
-            os.makedirs(
-                os.path.join(dataset_output, sub, split),
-                exist_ok=True
-            )
-
-
-def save_image(image, dataset_output, split, filename):
-    path = os.path.join(dataset_output, "images", split, filename)
-    cv2.imwrite(path, image)
-
-
-def save_mask(mask, dataset_output, split, filename):
-    path = os.path.join(dataset_output, "masks", split, filename)
-    cv2.imwrite(path, mask)
-
-
-def save_classes_txt(dataset_output, class_names):
-    with open(os.path.join(dataset_output, "classes.txt"), "w") as f:
-        for cls in class_names:
-            f.write(f"{cls}\n")
+    return overlay
