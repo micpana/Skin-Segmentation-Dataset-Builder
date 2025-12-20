@@ -5,7 +5,10 @@ Skin detection and extraction logic.
 import cv2
 import numpy as np
 import mediapipe as mp
+import os
 
+# Suppress TensorFlow logging caused by MediaPipe
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 mp_face = mp.solutions.face_detection
 
@@ -120,6 +123,7 @@ def extract_skin(image_path):
     if region is None or region.size == 0:
         return None, None
 
+    # Generate skin mask
     mask = skin_color_mask(region)
 
     # -------------------------------
