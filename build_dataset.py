@@ -31,12 +31,19 @@ def process_split(split: str, class_names: list):
     Processes one dataset split (train / valid / test)
     """
     image_paths = get_image_paths(DATASET_ORIGINAL, split, class_names)
+    class_to_id = {name: idx + 1 for idx, name in enumerate(class_names)}
 
     for img_path, class_name in tqdm(image_paths, desc=f"Processing {split}"):
-        skin_image, skin_mask = extract_skin(img_path)
+        skin_image, binary_mask = extract_skin(img_path)
 
-        if skin_image is None or skin_mask is None:
+        if skin_image is None or binary_mask is None:
             continue
+
+        # -----------------------------
+        # Convert binary mask to class-labeled mask
+        # -----------------------------
+        mask = np.zeros_like(binary_mask, dtype=np.uint8)
+        mask[binary_mask > 0] = class_to_id[class_name]
 
         filename = os.path.basename(img_path)
 
@@ -48,7 +55,7 @@ def process_split(split: str, class_names: list):
         )
 
         save_mask(
-            skin_mask,
+            mask,
             DATASET_OUTPUT,
             split,
             filename
