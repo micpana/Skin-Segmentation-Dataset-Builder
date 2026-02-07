@@ -48,7 +48,7 @@ def save_image(image, dataset_output, split, filename):
 
 
 def save_mask(mask, dataset_output, split, filename):
-    path = os.path.join(dataset_output, "masks", split, filename)
+    path = os.path.join(dataset_output, "masks", split, os.path.splitext(filename)[0] + ".png")
     cv2.imwrite(path, mask)
 
 
