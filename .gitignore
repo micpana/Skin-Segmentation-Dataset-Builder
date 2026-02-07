@@ -13,8 +13,10 @@ logs
 # Python cache
 __pycache__
 
-# Segmentation models
+# Segmentation dataset
 dataset
 
 # Original dataset, used in classification tasks
 dataset_original
+
+script.py
